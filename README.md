@@ -22,6 +22,6 @@ npm run build
 npm run lint
 ```
 
-## 参考
+## Reference
 
-[参考 coderwhy 老师的 vue3+typescript+vite+element-plus](http://152.136.185.210/)搭建
+[参考 coderwhy 老师的 vue3+typescript+vite+element-plus 后台管理系统搭建](http://152.136.185.210/)搭建
