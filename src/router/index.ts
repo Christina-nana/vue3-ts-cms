@@ -1,4 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
+import { localCache } from '@/utils/cache'
+import { LOGIN_TOKEN } from '@/global/constants'
+
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
@@ -17,7 +20,7 @@ const router = createRouter({
     {
       path: '/main',
       name: 'Main',
-      component: () => import('../views/main/Main.vue')
+      component: () => import('../views/main/main.vue')
     },
     {
       path: '/:pathMatch(.*)',
@@ -25,6 +28,19 @@ const router = createRouter({
       component: () => import('../views/not-found/NotFound.vue')
     }
   ]
+})
+
+// 动态添加路由
+// router.addRoute('Main', {
+//   path: 'system/user',
+//   component: () => import('../views/main/system/user/user.vue')
+// })
+
+// 路由拦截
+router.beforeEach((to) => {
+  if (to.path.startsWith('/main') && !localCache.getCache(LOGIN_TOKEN)) {
+    return '/login'
+  }
 })
 
 export default router

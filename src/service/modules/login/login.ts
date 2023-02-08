@@ -4,9 +4,9 @@ import type { IAcount } from '@/types'
 interface IAcountRes {
   code: number
   data: {
-    id: number
+    id: string
     name: string
-    token: ''
+    token: string
   }
 }
 
@@ -34,5 +34,17 @@ export function accountLoginRequest(account: IAcount) {
     //     return err
     //   }
     // }
+  })
+}
+
+export function getUserInfoById(id: string) {
+  return baseRequest.request({
+    url: `/users/${id}`
+  })
+}
+
+export function getUserMenusByRoleId(id: string) {
+  return baseRequest.request({
+    url: `/role/${id}/menu`
   })
 }

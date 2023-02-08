@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 import { type FormRules, type FormInstance, ElMessage } from 'element-plus'
-import { accountLoginRequest } from '@/service/modules/login/login'
+import type { IAcount } from '@/types'
+import { useLoginStore } from '@/store/login/login'
+import { localCache } from '@/utils/cache'
+
+const CACHE_PASSWORD = 'password'
+const CACHE_NAME = 'name'
+
 // 1.定义account数据
-const account = reactive({
-  name: '',
-  password: ''
+const account = reactive<IAcount>({
+  name: localCache.getCache(CACHE_NAME),
+  password: localCache.getCache(CACHE_PASSWORD)
 })
 
 // 2.定义校验规则
@@ -31,15 +37,23 @@ const rules: FormRules = {
 // 3.执行帐号的登录逻辑
 // const formRef = ref<InstanceType<typeof ElForm>>()
 const formRef = ref<FormInstance>()
-function loginAction() {
+const loginStore = useLoginStore()
+function loginAction(isRemPwd: boolean) {
   if (!formRef.value) return
   formRef.value?.validate((valid) => {
     if (valid) {
       // 验证有效
       let { name, password } = account
       // 发送网络请求
-      accountLoginRequest({ name, password }).then((res) => {
-        console.log(res)
+      loginStore.loginAccountAction({ name, password }).then(() => {
+        // 判断是否是记住密码
+        if (isRemPwd) {
+          localCache.setCache(CACHE_NAME, name)
+          localCache.setCache(CACHE_PASSWORD, password)
+        } else {
+          localCache.removeCache(CACHE_NAME)
+          localCache.removeCache(CACHE_PASSWORD)
+        }
       })
     } else {
       // 验证无效
@@ -63,7 +77,7 @@ defineExpose({
         <el-input v-model="account.name" size="large"></el-input>
       </el-form-item>
       <el-form-item label="密码" prop="password">
-        <el-input v-model="account.password" type="password" show-password size="large"></el-input>
+        <el-input v-model="account.password" type="password" size="large" show-password></el-input>
       </el-form-item>
     </el-form>
   </div>

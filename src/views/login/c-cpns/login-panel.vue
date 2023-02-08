@@ -1,13 +1,25 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { localCache } from '@/utils/cache'
+import { ref, watch } from 'vue'
 import PanelAccount from './panel-account.vue'
 import PanelPhone from './panel-phone.vue'
 
-const isRemPwd = ref(false)
+// 是否记住密码功能
+const isRemPwd = ref<boolean>(localCache.getCache('isRemPwd'))
+watch(isRemPwd, (newValue) => {
+  localCache.setCache('isRemPwd', newValue)
+})
+
 const accountRef = ref<InstanceType<typeof PanelAccount>>()
 
+const activeName = ref('account')
+
 const handleLoginBtnClick = () => {
-  accountRef.value?.loginAction()
+  if (activeName.value === 'account') {
+    accountRef.value?.loginAction(isRemPwd.value)
+  } else {
+    console.log('用户在进行手机登录')
+  }
 }
 </script>
 
@@ -16,8 +28,8 @@ const handleLoginBtnClick = () => {
     <h1 class="title">后台管理系统</h1>
 
     <div>
-      <el-tabs type="border-card" stretch>
-        <el-tab-pane>
+      <el-tabs type="border-card" stretch v-model="activeName">
+        <el-tab-pane name="account">
           <template #label>
             <span class="label">
               <el-icon><UserFilled /></el-icon>
@@ -26,7 +38,7 @@ const handleLoginBtnClick = () => {
           </template>
           <panel-account ref="accountRef" />
         </el-tab-pane>
-        <el-tab-pane>
+        <el-tab-pane name="phone">
           <template #label>
             <span class="label">
               <el-icon><Iphone /></el-icon>
@@ -43,14 +55,7 @@ const handleLoginBtnClick = () => {
       <el-link type="primary" :underline="false">忘记密码</el-link>
     </div>
 
-    <el-button
-      type="primary"
-      class="login-btn"
-      size="large"
-      @click="handleLoginBtnClick"
-    >
-      立即登录
-    </el-button>
+    <el-button type="primary" class="login-btn" size="large" @click="handleLoginBtnClick"> 立即登录 </el-button>
   </div>
 </template>
 
