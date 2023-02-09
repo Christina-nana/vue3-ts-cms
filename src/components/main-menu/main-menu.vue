@@ -1,12 +1,29 @@
 <script setup lang="ts">
+import router from '@/router'
 import { useLoginStore } from '@/store/login/login'
+import { useRoute } from 'vue-router'
+import { computed } from 'vue'
+import { mapPathToMenu } from '@/utils/map-menus'
 
-const loginStore = useLoginStore()
 defineProps({
   isFold: {
     type: Boolean,
     default: false
   }
+})
+
+const loginStore = useLoginStore()
+
+const handleClickMenu = (sumItem: any) => {
+  router.push(sumItem.url)
+}
+
+// 刷新保持默认菜单
+const route = useRoute()
+const userMenus = loginStore.userMenus
+const defaultActive = computed(() => {
+  const activeMenu = mapPathToMenu(userMenus, route.path)
+  return activeMenu.id + ''
 })
 </script>
 
@@ -18,14 +35,19 @@ defineProps({
     </div>
 
     <div class="menu">
-      <el-menu class="el-menu-vertical-demo" default-active="3" :collapse="isFold">
+      <el-menu class="el-menu-vertical-demo" :default-active="defaultActive" :collapse="isFold">
         <el-sub-menu :index="item.id.toString()" v-for="item in loginStore.userMenus" :key="item.id">
           <template #title>
             <el-icon> <component :is="item.icon.split('el-icon-')[1]" /></el-icon>
             <span> {{ item.name }}</span>
           </template>
 
-          <el-menu-item :index="subItem.id.toString()" v-for="subItem in item.children" :key="subItem.id">
+          <el-menu-item
+            :index="subItem.id.toString()"
+            v-for="subItem in item.children"
+            :key="subItem.id"
+            @click="handleClickMenu(subItem)"
+          >
             {{ subItem.name }}
           </el-menu-item>
         </el-sub-menu>

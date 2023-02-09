@@ -16,7 +16,9 @@ function handleFoldChange(flag: boolean) {
         <el-header height="50px">
           <main-header @flod-change="handleFoldChange" />
         </el-header>
-        <el-main class="main-content"></el-main>
+        <el-main class="main-content">
+          <router-view></router-view>
+        </el-main>
       </el-container>
     </el-container>
   </div>

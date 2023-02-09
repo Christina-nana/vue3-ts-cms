@@ -1,14 +1,12 @@
-<script setup lang="ts"></script>
-
 <template>
-  <div>user</div>
+  <div class="user">
+    <h2>user</h2>
+  </div>
 </template>
 
-<style scoped></style>
-<script setup lang="ts"></script>
+<script setup lang="ts" name="user"></script>
 
-<template>
-  <div>user</div>
-</template>
-
-<style scoped></style>
+<style scoped>
+.user {
+}
+</style>

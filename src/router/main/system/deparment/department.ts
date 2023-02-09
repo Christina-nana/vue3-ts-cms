@@ -1,5 +1,6 @@
+const department = () => import('@/views/main/system/department/department.vue')
 export default {
   path: '/main/system/department',
-  name: 'user',
-  component: () => import('@/view/main/system/department/department.vue')
+  name: 'department',
+  component: department
 }

@@ -4,11 +4,9 @@ import type { IAcount } from '@/types'
 import { localCache } from '@/utils/cache'
 import router from '@/router'
 import { LOGIN_TOKEN } from '@/global/constants'
-import type { RouteRecordRaw } from 'vue-router'
+import { mapMenusToRoutes } from '@/utils/map-menus'
 
 interface IStateType {
-  id: string
-  name: string
   token: string
   userInfo: any
   userMenus: any
@@ -16,8 +14,6 @@ interface IStateType {
 
 const useLoginStore = defineStore('login', {
   state: (): IStateType => ({
-    id: '',
-    name: '',
     token: localCache.getCache(LOGIN_TOKEN) ?? '',
     userInfo: localCache.getCache('userInfo') ?? {},
     userMenus: localCache.getCache('userMenus') ?? []
@@ -26,55 +22,38 @@ const useLoginStore = defineStore('login', {
     async loginAccountAction(account: IAcount) {
       // 发送网络请求
       const res = await accountLoginRequest(account)
-      this.id = res.data.id
-      this.name = res.data.name
+      const id = res.data.id
       this.token = res.data.token
 
       // 本地存储token
       localCache.setCache(LOGIN_TOKEN, this.token)
 
-      // 跳转页面
-      router.push('/main')
-
       // 获取用户信息
-      const userInfoRes = await getUserInfoById(this.id)
+      const userInfoRes = await getUserInfoById(id)
       this.userInfo = userInfoRes.data
-      localCache.setCache('userInfo', this.userInfo)
 
       // 获取菜单列表
-      const userMenusRes = await getUserMenusByRoleId(this.id)
+      const userMenusRes = await getUserMenusByRoleId(this.userInfo.role.id)
       this.userMenus = userMenusRes.data
+
+      // 本地缓存用户信息和菜单
+      localCache.setCache('userInfo', this.userInfo)
       localCache.setCache('userMenus', this.userMenus)
 
-      // 动态添加路由
-      // 1. 构建路由
-      const localRoutes: RouteRecordRaw[] = []
-
-      // 1.1 读取router/main所有的ts文件：import.meta.glob()等价于require.context()
-      const files: Record<string, any> = import.meta.glob('../../router/main/**/*.ts', {
-        eager: true
+      // 重要: 动态的添加路由
+      const routes = mapMenusToRoutes(this.userMenus)
+      routes.forEach((item) => {
+        router.addRoute('Main', item)
       })
 
-      // 1.2 将读取出来的路由放到localRoutes数组中
-      for (const key in files) {
-        const module = files[key].default
-        localRoutes.push(module)
-      }
-
-      // 2. 根据菜单匹配路由
-      const routes: RouteRecordRaw[] = []
-      for (const menu of this.userMenus) {
-        for (const subMenu of menu.children) {
-          const route = localRoutes.find((item) => item.path === subMenu.url)
-          if (route) {
-            routes.push(route)
-          }
-        }
-      }
-
-      // 3. 菜单匹配到的路由动态添加注册
-      routes.forEach((route) => {
-        router.addRoute('Main', route)
+      // 跳转页面
+      router.push('/main')
+    },
+    loadLocalCacheAction() {
+      // 重要: 动态的添加路由
+      const routes = mapMenusToRoutes(this.userMenus)
+      routes.forEach((item) => {
+        router.addRoute('Main', item)
       })
     }
   }

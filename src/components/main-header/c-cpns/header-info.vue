@@ -6,6 +6,8 @@ import router from '@/router'
 const loginStore = useLoginStore()
 function editLogin() {
   localCache.removeCache(LOGIN_TOKEN)
+  // localCache.removeCache('userInfo')
+  // localCache.removeCache('userMenus')
   router.push('/login')
 }
 </script>

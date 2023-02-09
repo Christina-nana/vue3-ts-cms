@@ -1,7 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div>list</div>
+  <div>department</div>
 </template>
 
 <style scoped></style>

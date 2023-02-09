@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { localCache } from '@/utils/cache'
 import { LOGIN_TOKEN } from '@/global/constants'
+import { firstMenu } from '@/utils/map-menus'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -38,8 +39,13 @@ const router = createRouter({
 
 // 路由拦截
 router.beforeEach((to) => {
-  if (to.path.startsWith('/main') && !localCache.getCache(LOGIN_TOKEN)) {
+  const token = localCache.getCache(LOGIN_TOKEN)
+  if (to.path.startsWith('/main') && !token) {
     return '/login'
+  }
+  // 重定向到第一个子路由
+  if (to.path === '/main' && token) {
+    return firstMenu.url
   }
 })
 
